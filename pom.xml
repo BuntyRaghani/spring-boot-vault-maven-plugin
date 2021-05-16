@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.4.5</version>
+    </parent>
+
+    <groupId>com.example.vault</groupId>
+    <artifactId>read-secrets</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
+
+    <name>read-secrets</name>
+    <description>A Spring Boot app to read secrets from vault using vault maven plugin</description>
+
+    <properties>
+        <java.version>16</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- Read secrets from HashiCorp Vault and assign it to Maven properties -->
+            <plugin>
+                <groupId>com.deciphernow</groupId>
+                <artifactId>vault-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <id>pull</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>pull</goal>
+                        </goals>
+                        <configuration>
+                            <servers>
+                                <server>
+                                    <!-- Update vault server URL with your own URL -->
+                                    <url>http://localhost:8200</url>
+                                    <!-- Token to authenticate with Vault server. Do not hardcode the vault token -->
+                                    <token>${vaultToken}</token>
+                                    <paths>
+                                        <path>
+                                            <!-- Vault path can be hardcoded completely or it can be made dynamic like shown below -->
+                                            <name>/secrets/v1/${environment}</name>
+                                            <mappings>
+                                                <mapping>
+                                                    <!-- key - name of the key stored in vault -->
+                                                    <key>username</key>
+                                                    <!-- property - to whom you want to assign the value after reading it from the Vault -->
+                                                    <property>username</property>
+                                                </mapping>
+                                                <mapping>
+                                                    <!-- key - name of the key stored in vault -->
+                                                    <key>password</key>
+                                                    <!-- property - to whom you want to assign the value after reading it from the Vault -->
+                                                    <property>password</property>
+                                                </mapping>
+                                            </mappings>
+                                        </path>
+                                    </paths>
+                                </server>
+                            </servers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
